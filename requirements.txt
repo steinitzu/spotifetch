@@ -1,0 +1,7 @@
+flask
+spotipy
+pyopenssl
+ndg-httpsclient
+pyasn1
+requests[security]
+flask-bootstrap

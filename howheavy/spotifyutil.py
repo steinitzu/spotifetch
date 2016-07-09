@@ -16,8 +16,8 @@ def spotipy_with_token(username):
     return spotipy.Spotify(auth=get_token(username))
 
 
-def iterate_results(username, endpoint, *args, **kwargs):
-    sp = spotipy_with_token(username)
+def iterate_results(spotify, endpoint, *args, **kwargs):
+    sp = spotify
     func = getattr(sp, endpoint)
     result = func(*args, **kwargs)
     while True:
@@ -29,8 +29,9 @@ def iterate_results(username, endpoint, *args, **kwargs):
             break
 
 
-def get_saved_tracks(username):
-    return iterate_results(username, 'current_user_saved_tracks')
+def get_saved_tracks(access_token):
+    spotify = spotipy.Spotify(auth=access_token)
+    return iterate_results(spotify, 'current_user_saved_tracks', limit=50)
 
 
 def get_top(username, top_type='artists', time_range='medium_term'):

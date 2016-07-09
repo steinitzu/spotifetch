@@ -11,10 +11,6 @@
 
     <div class="container-fluid">
         {% block content %}
-            <div onload="brython">
-
-                <p>Your name is : <input id="zone"><button id="test">clic !</button>
-            </div>
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
@@ -28,17 +24,5 @@
     </div>
     {% block scripts %}
         {{super()}}
-        <script type="text/javascript"
-                src="https://cdn.rawgit.com/brython-dev/brython/3.2.2/www/src/brython.js">
-        </script>
-        <script type="text/python">
-         from browser import document as doc
-         from browser import alert
-
-         def echo(*args):
-                                   alert("Hello %s !" %doc["zone"].value)
-
-         doc["test"].bind("click", echo)
-        </script>
     {% endblock %}
 {% endblock %}

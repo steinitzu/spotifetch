@@ -5,6 +5,7 @@ import spotipy
 import flask
 from flask import redirect, url_for, request, session, render_template
 from flask import Response
+from flask import stream_with_context
 
 from . import app, log
 from spotifyutil import get_saved_tracks
@@ -55,7 +56,8 @@ def callback():
 
 @app.route('/app_start')
 def app_start():
-    return redirect(url_for('saved_tracks'))
+    return redirect(url_for('tinker',))
+
 
 
 def jsonify_generator(generator):
@@ -68,7 +70,24 @@ def jsonify_generator(generator):
 
 @app.route('/saved_tracks', methods=['GET'])
 def saved_tracks():
-    token = session['spotify_access_token']
+    token = request.args['token']
     tracks = get_saved_tracks(token)
+    # TODO: using a generator doesn't work with js fetch
+    l = []
+    for row in tracks:
+        l.append(row)
+        if len(l) >= 100:
+            break
+    return flask.jsonify(l)
     return Response(jsonify_generator(tracks),
                     mimetype='application/json')
+
+
+@app.route('/tinker')
+def tinker():
+    return render_template('tinker.html', token=session['spotify_access_token'])
+
+
+@app.route('/tinker.json', methods=['GET'])
+def tinker_json():
+    return flask.json.dumps({'test1':1, 'test2':2})

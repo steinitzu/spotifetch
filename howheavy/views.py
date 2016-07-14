@@ -60,47 +60,24 @@ def app_start():
 
 
 
-def jsonify_generator(generator):
+def jsonify_generator(generator, limit=None):
     count = 0
     for row in generator:
         log.debug('Row count:{}'.format(count))
+        yield flask.json.dumps(row)+'\r'
         count += 1
-        yield flask.json.dumps(row)+'\n'
+        if limit and count == limit:
+            break
 
 
 @app.route('/saved_tracks', methods=['GET'])
 def saved_tracks():
-
-    # TODO: using a generator doesn't work with js fetch
-    # l = []
-    # for row in tracks:
-    #     l.append(row)
-    #     if len(l) >= 100:
-    #         break
-    # return flask.jsonify(l)
-    # for i in tracks:
-    #     yield flask.json.dumps(i)
-    # for i in jsonify_generator(tracks):
-    #     yield i
-
-
-    # def generate():
-    #     token = request.args['token']
-    #     tracks = get_saved_tracks(token)
-    #     for row in tracks:
-    #         row = flask.json.dumps(row)
-    #         yield row
-
-    def generate():
-        for i in range(1000):
-            if i % 100 == 0:
-                time.sleep(3)
-            yield flask.json.dumps({'number': i})+'\n'
-    return Response(generate(), mimetype='application/json')
-    return Response(stream_with_context(generate()))
-    # return Response(jsonify_generator(tracks),
-    #                 mimetype='application/json')
-
+    token = request.args['token']
+    tracks = get_saved_tracks(token)
+    r = Response(jsonify_generator(tracks),
+                 mimetype='application/json')
+    #r.headers['Keep-Alive'] = 10
+    return r
 
 @app.route('/tinker')
 def tinker():

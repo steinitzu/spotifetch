@@ -1,7 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
     {{ super() }}
-    <meta id="spotify_access_token" data="{{token}}" />
     {#
     <li>{{ tracks }}</li>
 
@@ -9,11 +8,10 @@
         <li>{{ track['track']['name'] }}</li>
     {% endfor %}
     #}
-    <div id="example"></div>
 
 {% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    <script src="{{ url_for('static', filename='scripts/tinker.js') }}" type="text/babel"></script>
+    <script type="text/babel" src="{{ url_for('static', filename='scripts/tinker.js') }}"></script>
 {% endblock %}

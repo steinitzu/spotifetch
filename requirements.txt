@@ -5,3 +5,4 @@ ndg-httpsclient
 pyasn1
 requests[security]
 flask-bootstrap
+gevent

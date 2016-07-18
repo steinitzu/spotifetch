@@ -60,15 +60,13 @@ def app_start():
 
 
 
-def jsonify_generator(generator, limit=None):
+def jsonify_generator(generator):
     count = 0
     for row in generator:
+        log.debug(row);
         log.debug('Row count:{}'.format(count))
         yield flask.json.dumps(row)+'\r'
         count += 1
-        if limit and count == limit:
-            break
-
 
 @app.route('/saved_tracks', methods=['GET'])
 def saved_tracks():

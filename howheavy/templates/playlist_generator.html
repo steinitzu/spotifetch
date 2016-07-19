@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+    {{ super() }}
+    <meta id="spotify_access_token" data="{{token}}" />
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

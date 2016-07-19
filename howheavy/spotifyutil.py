@@ -47,23 +47,25 @@ def get_top(access_token, top_type='artists', time_range='medium_term'):
     endpoint = 'current_user_top_{}'.format(top_type)
     return iterate_results(spotify,
                            endpoint,
-                           time_range=time_range)
+                           time_range=time_range,
+                           limit=50)
 
 
 def get_recommendations(access_token, top_artists, limit=100, **kwargs):
-    artist_ids = [a['id'] for a in top_artists]
+    artist_ids = list(set([a['id'] for a in top_artists]))
+    log.info('Number of artists used as seed:{}'.format(len(artist_ids)))
     spotify = spotipy.Spotify(auth=access_token)
     endpoint = 'recommendations'
-    artist_chunks = chunks(artist_ids, 1)
     gens = []
-    for ac in artist_chunks:
+    for artist in artist_ids:
         gens.append(
             iterate_results(spotify,
                             endpoint,
                             target_key='tracks',
-                            seed_artists=ac,
+                            seed_artists=[artist],
                             limit=limit,
                             **kwargs))
+    log.info('Number of track generators:{}'.format(len(gens)))
     return itertools.chain(*gens)
 
 
@@ -81,12 +83,33 @@ def generate_playlist(access_token, **kwargs):
         user_id, name, public=False)
     log.debug('Playlist_id:{}'.format(playlist['id']))
 
-    tops = get_top(access_token)
-
+    tops = itertools.chain(get_top(access_token, time_range='short_term'),
+                           get_top(access_token, time_range='medium_term'),
+                           get_top(access_token, time_range='long_term'))
     recommendations = get_recommendations(
         access_token, tops, **kwargs)
 
+    # Can't chunk an iterator
+
+    # tracks_added = set()
+    # for chunk in chunks(recommendations, 100):
+    #     chunk = [t['uri'] for t in chunk]
+    #     to_add = set(chunk).difference(tracks_added)
+    #     spotify.user_playlist_add_tracks(
+    #         user_id, playlist['id'], list(to_add))
+    #     tracks_added = tracks_added.union(to_add)
+
+    # Can't add one track at a time, too slow
+    # for track in recommendations:
+    #     if track['uri'] in tracks_added:
+    #         continue
+    #     spotify.user_playlist_add_tracks(
+    #         user_id, playlist['id'], [track['uri']])
+    #     tracks_added.add(track['uri'])
+
+    # TODO: Find a way to make 100 track chunks while iterating
     track_uris = set([t['uri'] for t in recommendations])
+    log.info('Number of tracks to be added:{}'.format(len(track_uris)))
     track_uris = chunks(list(track_uris), 100)
 
     for c in track_uris:

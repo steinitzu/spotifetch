@@ -57,8 +57,13 @@ def callback():
 
 @app.route('/app_start')
 def app_start():
-    return redirect(url_for('tinker',))
+    return redirect(url_for('generate_playlist',))
 
+
+@app.route('/generate_playlist')
+def generate_playlist():
+    return render_template(
+        'playlist_generator.html', token=session['spotify_access_token'])
 
 
 def jsonify_generator(generator):

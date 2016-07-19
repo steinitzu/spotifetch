@@ -21,6 +21,7 @@ def get_spotify_oauth():
     client_id = os.getenv('SPOTIPY_CLIENT_ID')
     client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
     redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+    log.info(app.config['SPOTIFY_AUTHORIZATION_SCOPE'])
     auth = spotipy.oauth2.SpotifyOAuth(
         client_id, client_secret, redirect_uri,
         scope=app.config['SPOTIFY_AUTHORIZATION_SCOPE'])
@@ -63,8 +64,6 @@ def app_start():
 def jsonify_generator(generator):
     count = 0
     for row in generator:
-        log.debug(row);
-        log.debug('Row count:{}'.format(count))
         yield flask.json.dumps(row)+'\r'
         count += 1
 

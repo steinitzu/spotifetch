@@ -6,3 +6,5 @@ pyasn1
 requests[security]
 flask-bootstrap
 gevent
+wtforms
+flask_wtf

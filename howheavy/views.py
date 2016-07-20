@@ -8,7 +8,9 @@ from flask import Response
 from flask import stream_with_context
 
 from . import app, log
-from spotifyutil import get_saved_tracks
+from .spotifyutil import get_saved_tracks
+from . import spotifyutil
+from . import forms
 
 
 @app.route('/', methods=['GET'])
@@ -57,13 +59,28 @@ def callback():
 
 @app.route('/app_start')
 def app_start():
-    return redirect(url_for('generate_playlist',))
+    return redirect(url_for('playlist_generator',))
 
 
-@app.route('/generate_playlist')
-def generate_playlist():
+@app.route('/playlist_generator', methods=['GET', 'POST'])
+def playlist_generator():
+    form = forms.PlaylistGenerator(request.form)
+    log.info(form.errors)
+    if form.validate_on_submit():
+        # TODO: need to allow None input to pass validation
+        log.info(form.data)
+        return redirect(url_for('index'))
     return render_template(
-        'playlist_generator.html', token=session['spotify_access_token'])
+        'playlist_generator.html', token=session['spotify_access_token'],
+        form=form)
+
+
+@app.route('/generate_playlist', methods=['GET', 'POST'])
+def generate_playlist():
+    data = request.get_json()
+    token = request.args.get('token') or session['spotify_access_token']
+    spotifyutil.generate_playlist(token, **data)
+    return 'Yo'
 
 
 def jsonify_generator(generator):
@@ -71,6 +88,7 @@ def jsonify_generator(generator):
     for row in generator:
         yield flask.json.dumps(row)+'\r'
         count += 1
+
 
 @app.route('/saved_tracks', methods=['GET'])
 def saved_tracks():
@@ -80,6 +98,7 @@ def saved_tracks():
                  mimetype='application/json')
     #r.headers['Keep-Alive'] = 10
     return r
+
 
 @app.route('/tinker')
 def tinker():

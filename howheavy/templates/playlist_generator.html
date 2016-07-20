@@ -2,7 +2,16 @@
 {% block content %}
     {{ super() }}
     <meta id="spotify_access_token" data="{{token}}" />
+
+    <form action="{{ url_for('playlist_generator') }}" method="POST" name="form">
+        {{ form.csrf_token }}<br/>
+        {% for field in form %}
+            {{ field.label }} {{ field }}<br/>
+        {% endfor %}
+        <input type=submit value="Submit" />
+    </form>
 {% endblock %}
+
 
 {% block scripts %}
     {{ super() }}

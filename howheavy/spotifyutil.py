@@ -61,6 +61,7 @@ def get_all_top(access_token, top_type='artists'):
 def get_recommendations(access_token, seed_artists, limit=100, **kwargs):
     artist_ids = list(set([a['id'] for a in seed_artists]))
     log.info('Number of artists used as seed:{}'.format(len(artist_ids)))
+    log.info('Tuneables:{}'.format(kwargs))
     spotify = spotipy.Spotify(auth=access_token)
     endpoint = 'recommendations'
     gens = []
@@ -90,7 +91,12 @@ def generate_playlist(access_token, **kwargs):
         user_id, name, public=False)
     log.debug('Playlist_id:{}'.format(playlist['id']))
 
-    tops = get_all_top(access_token, top_type='artists')
+    log.debug('Kwargs for playlist generation:{}'.format(kwargs))
+    time_range = kwargs.pop('time_range')
+    tops = itertools.chain(
+        *[get_top(access_token, top_type='artists', time_range=tr)
+          for tr in time_range])
+    # tops = get_all_top(access_token, top_type='artists')
 
     recommendations = get_recommendations(
         access_token, tops, limit=50, **kwargs)

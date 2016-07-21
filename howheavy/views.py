@@ -65,13 +65,26 @@ def app_start():
 @app.route('/playlist_generator', methods=['GET', 'POST'])
 def playlist_generator():
     form = forms.PlaylistGenerator(request.form)
-    log.info(form.errors)
     if form.validate_on_submit():
-        # TODO: need to allow None input to pass validation
         token = session['spotify_access_token']
         filter_kwargs = {}
-        for key, value in form.data.items():
-            if value < 0:
+        filter_kwargs['time_range'] = []
+        for field in form.time_range_fields:
+            if field.data:  # is True
+                filter_kwargs['time_range'].append(
+                    field.name[len('time_range_'):])
+        if not filter_kwargs['time_range']:
+            filter_kwargs['time_range_fields'] += [
+                'short_term', 'medium_term', 'long_term']
+
+        for field in form.tuneable_fields:
+            key = field.name
+            value = field.data
+            if value < 0 or value > 1:
+                continue
+            if key.startswith('min_') and value == 0:
+                continue
+            if key.startswith('max_') and value == 1.0:
                 continue
             filter_kwargs[key] = value
         spotifyutil.generate_playlist(token, **filter_kwargs)

@@ -14,10 +14,17 @@ filter_attrs = (
 
 
 class PlaylistGenerator(Form):
-    pass
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+        self.filter_fields = []
+        for field in self:
+            if field.type in ['CSRFTokenField', 'HiddenField']:
+                continue
+            self.filter_fields.append(field)
+
 
 for attr in filter_attrs:
     setattr(PlaylistGenerator, 'min_'+attr,
-            FloatField('Min '+attr))
+            FloatField('Min '+attr.capitalize(), default=0.0))
     setattr(PlaylistGenerator, 'max_'+attr,
-            FloatField('Max '+attr))
+            FloatField('Max '+attr.capitalize(), default=1.0))

@@ -68,7 +68,13 @@ def playlist_generator():
     log.info(form.errors)
     if form.validate_on_submit():
         # TODO: need to allow None input to pass validation
-        log.info(form.data)
+        token = session['spotify_access_token']
+        filter_kwargs = {}
+        for key, value in form.data.items():
+            if value < 0:
+                continue
+            filter_kwargs[key] = value
+        spotifyutil.generate_playlist(token, **filter_kwargs)
         return redirect(url_for('index'))
     return render_template(
         'playlist_generator.html', token=session['spotify_access_token'],

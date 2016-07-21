@@ -1,18 +1,35 @@
 {% extends "layout.html" %}
 {% block content %}
     {{ super() }}
+
     <meta id="spotify_access_token" data="{{token}}" />
 
     <form action="{{ url_for('playlist_generator') }}" method="POST" name="form">
-        {{ form.csrf_token }}<br/>
-        {% for field in form %}
-            {{ field.label }} {{ field }}<br/>
+        {{ form.hidden_tag() }}<br/>
+        {% for field_set in form.filter_fields | batch(2) %}
+            <div class="tuneable" id="{{ field_set[0]['name'][3:] }}" >
+                {% for field in field_set %}
+                    {{ field.label }} {{ field }}
+                {% endfor %}
+            </div>
+            {#% if field.type in ['CSRFTokenField', 'HiddenField'] %#}
+            {#{ field() }#}
+            {#% else %#}
+            {#% endif %#}
         {% endfor %}
+
         <input type=submit value="Submit" />
     </form>
+    <div id="slider"></div>
+    <script>
+
+
+    </script>
 {% endblock %}
 
 
 {% block scripts %}
     {{ super() }}
+    <script src="{{ url_for('static', filename='scripts/playlist_generator.js') }}"></script>
+
 {% endblock %}

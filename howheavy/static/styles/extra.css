@@ -1,0 +1,47 @@
+/* .slider { */
+/* 	height: 300px; */
+/* 	margin: 0 auto 30px; */
+/* } */
+
+/* .slider { */
+/*     width: 200px; */
+/* } */
+
+
+.not-a-textbox {
+    background:rgba(0,0,0,0);
+    display: inline-block;
+}
+
+.block-inline {
+    display: inline;
+}
+
+
+.noUi-horizontal.noUi-extended {
+	padding-right: 32px;
+}
+.noUi-horizontal.noUi-extended .noUi-handle {
+    left: -1px;
+}
+.noUi-horizontal.noUi-extended .noUi-origin  {
+	right: -32px;
+}
+
+.noUi-handle.noUi-extended {
+
+}
+
+
+
+
+
+
+/* .tuneable-value-left { */
+/*     float: right; */
+/*     border-style: solid; */
+/* } */
+
+/* .tuneable-value-right { */
+/*     border-style: solid; */
+/* } */

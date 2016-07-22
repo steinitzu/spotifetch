@@ -2,6 +2,8 @@ import os
 
 SECRET_KEY = os.getenv('HOWHEAVY_SECRET_KEY')
 
+TEMPLATES_AUTO_RELOAD = True
+
 auth_scopes = [
     'user-library-read',
     'user-top-read',

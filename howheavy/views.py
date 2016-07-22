@@ -64,17 +64,21 @@ def app_start():
 
 @app.route('/playlist_generator', methods=['GET', 'POST'])
 def playlist_generator():
+    # TODO: Check here if token expired
     form = forms.PlaylistGenerator(request.form)
     if form.validate_on_submit():
+        return '<br/>'.join(
+            ['{}: {}'.format(key, value) for key, value in form.data.items()])
         token = session['spotify_access_token']
         filter_kwargs = {}
         filter_kwargs['time_range'] = []
+        log.debug('Filter kwargs:{}'.format(filter_kwargs))
         for field in form.time_range_fields:
             if field.data:  # is True
                 filter_kwargs['time_range'].append(
                     field.name[len('time_range_'):])
         if not filter_kwargs['time_range']:
-            filter_kwargs['time_range_fields'] += [
+            filter_kwargs['time_range'] += [
                 'short_term', 'medium_term', 'long_term']
 
         for field in form.tuneable_fields:
@@ -88,6 +92,9 @@ def playlist_generator():
                 continue
             filter_kwargs[key] = value
         spotifyutil.generate_playlist(token, **filter_kwargs)
+        # return render_template(
+        #     'playlist_generator.html', token=session['spotify_access_token'],
+        #     form=form)
         return redirect(url_for('index'))
     return render_template(
         'playlist_generator.html', token=session['spotify_access_token'],

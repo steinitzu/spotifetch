@@ -18,19 +18,64 @@
 }
 
 
-.noUi-horizontal.noUi-extended {
-	padding-right: 32px;
+.slider .noUi-base {
+    /* background: white; */
 }
+.slider .noUi-background {
+    /* background: white; */
+}
+.slider .noUi-connect {
+    background: #23CF5F;
+    /* background: black; */
+}
+
+.slider .noUi-handle {
+    border: 1px solid black;
+}
+
 .noUi-horizontal.noUi-extended .noUi-handle {
+    width: 24px;
+    height: 20px;
     left: -1px;
-}
-.noUi-horizontal.noUi-extended .noUi-origin  {
-	right: -32px;
+    top: -2px;
 }
 
-.noUi-handle.noUi-extended {
+
+.noUi-horizontal.noUi-extended .noUi-handle:after {
+    display: none;
+    content: none;
+    background: black;
 
 }
+
+
+.noUi-horizontal.noUi-extended .noUi-handle:before {
+    display: none;
+    content: none;
+    background: black;
+
+}
+
+
+
+
+/* .noUi-horizontal.noUi-extended { */
+/* 	padding-right: 32px; */
+/* } */
+/* .noUi-horizontal.noUi-extended .noUi-handle { */
+/*     left: -1px; */
+/*     width: 10px; */
+/*     height: 10px; */
+
+
+/* } */
+/* .noUi-horizontal.noUi-extended .noUi-origin  { */
+/* 	right: -32px; */
+/* } */
+
+/* .noUi-handle.noUi-extended { */
+
+/* } */
 
 
 

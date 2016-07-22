@@ -67,8 +67,8 @@ def playlist_generator():
     # TODO: Check here if token expired
     form = forms.PlaylistGenerator(request.form)
     if form.validate_on_submit():
-        return '<br/>'.join(
-            ['{}: {}'.format(key, value) for key, value in form.data.items()])
+        # return '<br/>'.join(
+        #     ['{}: {}'.format(key, value) for key, value in form.data.items()])
         token = session['spotify_access_token']
         filter_kwargs = {}
         filter_kwargs['time_range'] = []

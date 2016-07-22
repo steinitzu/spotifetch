@@ -38,24 +38,28 @@
 {% macro render_range_slider(fields, label, element_id) %}
     {{ fields[0](type='hidden', **kwargs)|safe }}
     {{ fields[1](type='hidden', **kwargs)|safe }}
-    <div class="tuneable row" id="{{ element_id }}">
-        <div class="col-sm-2">
-            <label class="col-sm">{{ label }}</label>
-        </div>
-        <div class="col-sm-1">
-            <span class="tuneable-value-left" id="{{ 'span_'+fields[0].name }}">
-                {{ fields[0].data }}
-            </span>
-        </div>
-        <div class="col-sm-2">
-            <div class="slider noUi-extended" id="{{ 'slider'+element_id }}"></div>
-        </div>
-        <div class="col-sm-1">
-            <span class="tuneable-value-right" id="{{ 'span_'+fields[1].name }}">
-                {{ fields[1].data }}
-            </span>
-        </div>
-        <div class="col-sm-6"></div>
+    <div class="tuneable row-fluid" id="{{ element_id }}">
+
+
+
+
+
+        <label>{{ label }}</label>
+            <div class="col-lg-1 col-sm-1 col-xs-2">
+                <span class="tuneable-value-left pull-right" id="{{ 'span_'+fields[0].name }}">
+                    {{ fields[0].data }}
+                </span>
+            </div>
+            <div class="col-lg-2 col-sm-4 col-xs-4">
+                <div class="slider noUi-extended" id="{{ 'slider'+element_id }}"></div>
+            </div>
+            <div class="col-lg-1 col-sm-1 col-xs-2">
+                <span class="tuneable-value-right" id="{{ 'span_'+fields[1].name }}">
+                    {{ fields[1].data }}
+                </span>
+            </div>
+
+        <!-- <div class="col-sm-6"></div> -->
     </div>
 
 

@@ -11,7 +11,6 @@ tuneable_attrs = (
         'energy',
         'instrumentalness',
         'liveness',
-        'loudness',
         'speechiness',
         'valence',
     )

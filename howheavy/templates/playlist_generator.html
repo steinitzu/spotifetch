@@ -12,14 +12,18 @@
                 {{ render_range_slider(field_set, field_set[0].label, element_id) }}
             {% endfor %}
         </div>
-        <div class="time_range">
+        <div class="container-fluid time_range">
             <div class="row">
-                <label>Time range for top artists</label>
-                <div class="form-group">
+                <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
+                    <label>Time range for top artists</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class=" form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
                     {% for field in form.time_range_fields %}
-
-                        {{ field.label }} {{ field }}
-
+                        <label>
+                            {{ field }} {{ field.label.text|safe }}
+                        </label>
                     {% endfor %}
                 </div>
             </div>

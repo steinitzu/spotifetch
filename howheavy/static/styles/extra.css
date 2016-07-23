@@ -83,8 +83,7 @@
 
 
 /* .tuneable-value-left { */
-/*     float: right; */
-/*     border-style: solid; */
+/*     display: inline-block; */
 /* } */
 
 /* .tuneable-value-right { */

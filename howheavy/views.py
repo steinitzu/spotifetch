@@ -52,6 +52,8 @@ def callback():
     auth = get_spotify_oauth()
     code = auth.parse_response_code(request.url)
     token = auth.get_access_token(code)
+    # TODO: should be keeping track of auth object,
+    # to refresh token
     session['spotify_access_token'] = token['access_token']
     session['spotify_full_token'] = token
     return redirect(url_for('app_authorize'))
@@ -70,6 +72,7 @@ def playlist_generator():
         # return '<br/>'.join(
         #     ['{}: {}'.format(key, value) for key, value in form.data.items()])
         token = session['spotify_access_token']
+        log.info(session['spotify_full_token'])
         filter_kwargs = {}
         filter_kwargs['time_range'] = []
         log.debug('Filter kwargs:{}'.format(filter_kwargs))

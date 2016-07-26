@@ -173,17 +173,3 @@ def generate_playlist(access_token, **kwargs):
     if queue:
         spotify.user_playlist_add_tracks(
             user_id, playlist['id'], queue)
-
-
-
-
-
-
-    # TODO: Find a way to make 100 track chunks while iterating
-    # track_uris = set([t['uri'] for t in recommendations])
-    # log.info('Number of tracks to be added:{}'.format(len(track_uris)))
-    # track_uris = chunks(list(track_uris), 100)
-
-    # for c in track_uris:
-    #     spotify.user_playlist_add_tracks(
-    #         user_id, playlist['id'], c)

@@ -1,14 +1,6 @@
-import os
-import time
-
-import spotipy
-import flask
 from flask import redirect, url_for, request, session, render_template
-from flask import Response
-from flask import stream_with_context
 
 from . import app, log
-from .spotifyutil import get_saved_tracks
 from .spotifyutil import get_spotify_oauth, refresh_token
 from . import spotifyutil
 from . import forms
@@ -85,40 +77,5 @@ def playlist_generator():
         spotifyutil.generate_playlist(token, **filter_kwargs)
         return redirect(url_for('index'))
     return render_template(
-        'playlist_generator.html', token=session['spotify_token'],
+        'playlist_generator.html', token=session['spotify_token']['access_token'],
         form=form)
-
-
-@app.route('/generate_playlist', methods=['GET', 'POST'])
-def generate_playlist():
-    data = request.get_json()
-    token = request.args.get('token') or session['spotify_access_token']
-    spotifyutil.generate_playlist(token, **data)
-    return 'Yo'
-
-
-def jsonify_generator(generator):
-    count = 0
-    for row in generator:
-        yield flask.json.dumps(row)+'\r'
-        count += 1
-
-
-@app.route('/saved_tracks', methods=['GET'])
-def saved_tracks():
-    token = request.args['token']
-    tracks = get_saved_tracks(token)
-    r = Response(jsonify_generator(tracks),
-                 mimetype='application/json')
-    #r.headers['Keep-Alive'] = 10
-    return r
-
-
-@app.route('/tinker')
-def tinker():
-    return render_template('tinker.html', token=session['spotify_access_token'])
-
-
-@app.route('/tinker.json', methods=['GET'])
-def tinker_json():
-    return flask.json.dumps({'test1':1, 'test2':2})

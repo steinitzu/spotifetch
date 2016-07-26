@@ -12,7 +12,6 @@ from . import log
 from .util import chunks
 
 
-
 def get_spotify_oauth():
     client_id = os.getenv('SPOTIPY_CLIENT_ID')
     client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
@@ -63,18 +62,6 @@ class ExtendedOAuth(SpotifyOAuth):
             return self.token_infon
 
 
-def get_token(username):
-    scope = app.config['SPOTIFY_AUTHORIZATION_SCOPE']
-    token = spotipy.util.prompt_for_user_token(username,
-                                               scope=scope)
-
-    return token
-
-
-def spotipy_with_token(username):
-    return spotipy.Spotify(auth=get_token(username))
-
-
 def iterate_results(spotify, endpoint, *args, **kwargs):
     sp = spotify
     func = getattr(sp, endpoint)
@@ -82,9 +69,19 @@ def iterate_results(spotify, endpoint, *args, **kwargs):
         target_key = kwargs.pop('target_key')
     except KeyError:
         target_key = 'items'
+
+    def get_nested(key, dicta):
+        res = dicta
+        for k in key:
+            res = res[k]
+        return res
     result = func(*args, **kwargs)
     while True:
-        for item in result[target_key]:
+        if isinstance(target_key, list):
+            itemlist = get_nested(target_key, result)
+        else:
+            itemlist = result[target_key]
+        for item in itemlist:
             yield item
         if result.get('next'):
             result = sp.next(result)
@@ -111,6 +108,16 @@ def get_all_top(access_token, top_type='artists'):
         get_top(access_token, top_type=top_type, time_range='short_term'),
         get_top(access_token, top_type=top_type, time_range='medium_term'),
         get_top(access_token, top_type=top_type, time_range='long_term'))
+
+
+def get_followed_artists(access_token):
+    # TODO: ['next'] is nexted under ['artists'] in results
+    # can't get more than 50
+    spotify = spotipy.Spotify(auth=access_token)
+    return iterate_results(spotify,
+                           'current_user_followed_artists',
+                           target_key=['artists', 'items'],
+                           limit=50)
 
 
 def get_recommendations(access_token, seed_artists, limit=100, **kwargs):

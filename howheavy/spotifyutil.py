@@ -1,11 +1,66 @@
 import itertools
+import time
+import os
+import logging
 
 import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 import spotipy.util
 
 from . import app
 from . import log
 from .util import chunks
+
+
+
+def get_spotify_oauth():
+    client_id = os.getenv('SPOTIPY_CLIENT_ID')
+    client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+    redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+    log.info(app.config['SPOTIFY_AUTHORIZATION_SCOPE'])
+    auth = ExtendedOAuth(
+        client_id, client_secret, redirect_uri,
+        scope=app.config['SPOTIFY_AUTHORIZATION_SCOPE'])
+    return auth
+
+
+def token_is_expired(token):
+    return token['expires_at'] < time.time()
+
+
+def refresh_token(token):
+    if token_is_expired(token):
+        log.info('Token expired, refreshing:{}'.format(token['access_token']))
+        auth = get_spotify_oauth()
+        return auth._refresh_access_token(token)
+    else:
+        return token
+
+
+class ExtendedOAuth(SpotifyOAuth):
+    def __init__(self, *args, **kwargs):
+        SpotifyOAuth.__init__(self, *args, **kwargs)
+        self.token_info = None
+
+    def get_access_token(self, code):
+        """
+        Overrides get_access_token to store
+        the token in an instance variable after creation.
+        """
+        self.token_info = SpotifyOAuth.get_access_token(
+            self, code)
+        return self.token_info
+
+    def get_stored_token(self):
+        """
+        Get self.token_info, refreshing the token if needed.
+        """
+        is_expired = self._is_token_expired(self.token_info)
+        if self.token_info:
+            if is_expired:
+                self.token_info = self._refresh_access_token(
+                    self.token_info['refresh_token'])
+            return self.token_infon
 
 
 def get_token(username):

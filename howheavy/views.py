@@ -9,6 +9,7 @@ from flask import stream_with_context
 
 from . import app, log
 from .spotifyutil import get_saved_tracks
+from .spotifyutil import get_spotify_oauth, refresh_token
 from . import spotifyutil
 from . import forms
 
@@ -19,23 +20,10 @@ def index():
     return '<html><a href="/app_authorize">Start app</a></html>'
 
 
-def get_spotify_oauth():
-    client_id = os.getenv('SPOTIPY_CLIENT_ID')
-    client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
-    redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
-    log.info(app.config['SPOTIFY_AUTHORIZATION_SCOPE'])
-    auth = spotipy.oauth2.SpotifyOAuth(
-        client_id, client_secret, redirect_uri,
-        scope=app.config['SPOTIFY_AUTHORIZATION_SCOPE'])
-    return auth
-
-
 @app.route('/app_authorize')
 def app_authorize():
-    token = session.get('spotify_access_token')
-    full_token = session.get('spotify_full_token')
-    log.debug('Token:{}'.format(full_token))
-    if token and full_token['expires_at'] > time.time():
+    token = session.get('spotify_token')
+    if token:
         return redirect(url_for('app_start'))
     else:
         auth = get_spotify_oauth()
@@ -43,6 +31,7 @@ def app_authorize():
         return redirect(auth_url)
 
 
+# Spotify oauth callback url
 @app.route('/callback')
 def callback():
     """
@@ -52,10 +41,7 @@ def callback():
     auth = get_spotify_oauth()
     code = auth.parse_response_code(request.url)
     token = auth.get_access_token(code)
-    # TODO: should be keeping track of auth object,
-    # to refresh token
-    session['spotify_access_token'] = token['access_token']
-    session['spotify_full_token'] = token
+    session['spotify_token'] = token
     return redirect(url_for('app_authorize'))
 
 
@@ -66,13 +52,15 @@ def app_start():
 
 @app.route('/playlist_generator', methods=['GET', 'POST'])
 def playlist_generator():
-    # TODO: Check here if token expired
+    token = session.get('spotify_token')
+    if not token:
+        return redirect(url_for('app_authorize'))
     form = forms.PlaylistGenerator(request.form)
     if form.validate_on_submit():
-        # return '<br/>'.join(
-        #     ['{}: {}'.format(key, value) for key, value in form.data.items()])
-        token = session['spotify_access_token']
-        log.info(session['spotify_full_token'])
+        log.info('token:{}'.format(token))
+        refresh_token(token)
+        return '<br/>'.join(
+            ['{}: {}'.format(key, value) for key, value in form.data.items()])
         filter_kwargs = {}
         filter_kwargs['time_range'] = []
         log.debug('Filter kwargs:{}'.format(filter_kwargs))
@@ -95,12 +83,9 @@ def playlist_generator():
                 continue
             filter_kwargs[key] = value
         spotifyutil.generate_playlist(token, **filter_kwargs)
-        # return render_template(
-        #     'playlist_generator.html', token=session['spotify_access_token'],
-        #     form=form)
         return redirect(url_for('index'))
     return render_template(
-        'playlist_generator.html', token=session['spotify_access_token'],
+        'playlist_generator.html', token=session['spotify_token'],
         form=form)
 
 

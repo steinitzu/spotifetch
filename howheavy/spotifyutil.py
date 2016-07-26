@@ -32,7 +32,7 @@ def refresh_token(token):
     if token_is_expired(token):
         log.info('Token expired, refreshing:{}'.format(token['access_token']))
         auth = get_spotify_oauth()
-        return auth._refresh_access_token(token)
+        return auth._refresh_access_token(token['refresh_token'])
     else:
         return token
 

@@ -54,6 +54,9 @@ def playlist_generator():
         # return '<br/>'.join(
         #     ['{}: {}'.format(key, value) for key, value in form.data.items()])
         filter_kwargs = {}
+        filter_kwargs['playlist_name'] = (
+            form.playlist_name.data or 'Generated playlist')
+
         filter_kwargs['time_range'] = []
         log.debug('Filter kwargs:{}'.format(filter_kwargs))
         for field in form.time_range_fields:

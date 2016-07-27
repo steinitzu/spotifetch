@@ -148,7 +148,7 @@ def generate_playlist(access_token, **kwargs):
     """
     spotify = spotipy.Spotify(auth=access_token)
     user_id = spotify.current_user()['id']
-    name = 'howheavy_playlist'
+    name = kwargs.pop('playlist_name')
     playlist = spotify.user_playlist_create(
         user_id, name, public=False)
 

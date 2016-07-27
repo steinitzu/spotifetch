@@ -41,6 +41,7 @@ class TextDisplayWidget(object):
 
 
 class PlaylistGenerator(Form):
+    playlist_name = StringField(render_kw={'placeholder':'Name your playlist'})
     time_range_short_term = BooleanField('Short term')
     time_range_medium_term = BooleanField('Medium term')
     time_range_long_term = BooleanField('Long term')
@@ -57,6 +58,8 @@ class PlaylistGenerator(Form):
             elif field.name.startswith('time_range_'):
                 self.time_range_fields.append(field)
             elif field.name == 'use_followed_artists':
+                pass
+            elif field.name == 'playlist_name':
                 pass
             else:
                 self.tuneable_fields.append(field)

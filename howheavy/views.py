@@ -51,8 +51,8 @@ def playlist_generator():
     if form.validate_on_submit():
         log.info('token:{}'.format(token))
         refresh_token(token)
-        return '<br/>'.join(
-            ['{}: {}'.format(key, value) for key, value in form.data.items()])
+        # return '<br/>'.join(
+        #     ['{}: {}'.format(key, value) for key, value in form.data.items()])
         filter_kwargs = {}
         filter_kwargs['time_range'] = []
         log.debug('Filter kwargs:{}'.format(filter_kwargs))
@@ -60,9 +60,9 @@ def playlist_generator():
             if field.data:  # is True
                 filter_kwargs['time_range'].append(
                     field.name[len('time_range_'):])
-        if not filter_kwargs['time_range']:
-            filter_kwargs['time_range'] += [
-                'short_term', 'medium_term', 'long_term']
+        # if not filter_kwargs['time_range']:
+        #     filter_kwargs['time_range'] += [
+        #         'short_term', 'medium_term', 'long_term']
 
         for field in form.tuneable_fields:
             key = field.name
@@ -74,7 +74,9 @@ def playlist_generator():
             if key.startswith('max_') and value == 1.0:
                 continue
             filter_kwargs[key] = value
-        spotifyutil.generate_playlist(token, **filter_kwargs)
+        if form.data['use_followed_artists']:
+            filter_kwargs['use_followed_artists'] = True
+        spotifyutil.generate_playlist(token['access_token'], **filter_kwargs)
         return redirect(url_for('index'))
     return render_template(
         'playlist_generator.html', token=session['spotify_token']['access_token'],

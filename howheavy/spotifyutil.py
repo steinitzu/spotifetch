@@ -10,6 +10,7 @@ import spotipy.util
 from . import app
 from . import log
 from .util import chunks
+from .util import dict_get_nested
 
 
 def get_spotify_oauth():
@@ -69,22 +70,22 @@ def iterate_results(spotify, endpoint, *args, **kwargs):
         target_key = kwargs.pop('target_key')
     except KeyError:
         target_key = 'items'
+    try:
+        next_key = kwargs.pop('next_key')
+    except KeyError:
+        next_key = 'next'
 
-    def get_nested(key, dicta):
-        res = dicta
-        for k in key:
-            res = res[k]
-        return res
     result = func(*args, **kwargs)
     while True:
-        if isinstance(target_key, list):
-            itemlist = get_nested(target_key, result)
-        else:
-            itemlist = result[target_key]
+        itemlist = dict_get_nested(target_key, result)
         for item in itemlist:
             yield item
-        if result.get('next'):
-            result = sp.next(result)
+        try:
+            next_url = dict_get_nested(next_key, result)
+        except KeyError:
+            break
+        if next_url:
+            result = sp._get(next_url)
         else:
             break
 
@@ -111,12 +112,11 @@ def get_all_top(access_token, top_type='artists'):
 
 
 def get_followed_artists(access_token):
-    # TODO: ['next'] is nexted under ['artists'] in results
-    # can't get more than 50
     spotify = spotipy.Spotify(auth=access_token)
     return iterate_results(spotify,
                            'current_user_followed_artists',
                            target_key=['artists', 'items'],
+                           next_key=['artists', 'next'],
                            limit=50)
 
 
@@ -151,17 +151,22 @@ def generate_playlist(access_token, **kwargs):
     name = 'howheavy_playlist'
     playlist = spotify.user_playlist_create(
         user_id, name, public=False)
-    log.debug('Playlist_id:{}'.format(playlist['id']))
 
+    followed_artists = 'use_followed_artists' in kwargs
+
+    log.debug('Playlist_id:{}'.format(playlist['id']))
     log.debug('Kwargs for playlist generation:{}'.format(kwargs))
+
     time_range = kwargs.pop('time_range')
-    tops = itertools.chain(
+    artists = itertools.chain(
         *[get_top(access_token, top_type='artists', time_range=tr)
           for tr in time_range])
-    # tops = get_all_top(access_token, top_type='artists')
+
+    if followed_artists:
+        artists = itertools.chain(artists, get_followed_artists(access_token))
 
     recommendations = get_recommendations(
-        access_token, tops, limit=50, **kwargs)
+        access_token, artists, limit=50, **kwargs)
 
     added = set()
     queue = []

@@ -44,6 +44,8 @@ class PlaylistGenerator(Form):
     time_range_short_term = BooleanField('Short term')
     time_range_medium_term = BooleanField('Medium term')
     time_range_long_term = BooleanField('Long term')
+    use_followed_artists = BooleanField(
+        'Use my followed artists')
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)
@@ -54,6 +56,8 @@ class PlaylistGenerator(Form):
                 continue
             elif field.name.startswith('time_range_'):
                 self.time_range_fields.append(field)
+            elif field.name == 'use_followed_artists':
+                pass
             else:
                 self.tuneable_fields.append(field)
 

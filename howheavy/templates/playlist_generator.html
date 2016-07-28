@@ -5,6 +5,19 @@
     <meta id="spotify_access_token" data="{{token}}" />
 
     <form class="form" action="{{ url_for('playlist_generator') }}" method="POST" name="form">
+        {% if form.errors %}
+            <div class="container-fluid">
+                <div class="row">
+                    <div class=" form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
+                        <span class="help-block">
+                            {% for field, error in form.errors.items() %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         {{ form.hidden_tag() }}<br/>
         <div class="container-fluid">
             <div class="row">
@@ -20,28 +33,27 @@
                 {{ render_range_slider(field_set, field_set[0].label, element_id) }}
             {% endfor %}
         </div>
-        <div class="container-fluid time_range">
+        <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
                     <label>Time range for top artists</label>
                 </div>
             </div>
             <div class="row">
-                <div class=" form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
+                <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
+                    <div class="form-group">
                     {% for field in form.time_range_fields %}
-                        <label>
-                            {{ field }} {{ field.label.text|safe }}
-                        </label>
+                        {{ render_checkbox(field, classes='checkbox-inline') }}
                     {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="container-fluid">
+
             <div class="row">
-                <div class=" form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
-                    <label>
-                        {{ form.use_followed_artists }} {{ form.use_followed_artists.label.text|safe }}
-                    </label>
+                <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
+                    <div class="form-group">
+                        {{ render_checkbox(form.followed_artists, classes='checkbox-inline') }}
+                    </div>
                 </div>
             </div>
         </div>

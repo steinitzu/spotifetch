@@ -47,40 +47,49 @@ def playlist_generator():
     token = session.get('spotify_token')
     if not token:
         return redirect(url_for('app_authorize'))
+    refresh_token(token)
+    log.info('token:{}'.format(token))
     form = forms.PlaylistGenerator(request.form)
+
     if form.validate_on_submit():
-        log.info('token:{}'.format(token))
-        refresh_token(token)
-        # return '<br/>'.join(
-        #     ['{}: {}'.format(key, value) for key, value in form.data.items()])
-        filter_kwargs = {}
-        filter_kwargs['playlist_name'] = (
+        kw = {}
+        kw['playlist_name'] = (
             form.playlist_name.data or 'Generated playlist')
 
-        filter_kwargs['time_range'] = []
-        log.debug('Filter kwargs:{}'.format(filter_kwargs))
+        kw['top_artists_time_range'] = []
+
         for field in form.time_range_fields:
             if field.data:  # is True
-                filter_kwargs['time_range'].append(
+                kw['top_artists_time_range'].append(
                     field.name[len('time_range_'):])
-        # if not filter_kwargs['time_range']:
-        #     filter_kwargs['time_range'] += [
-        #         'short_term', 'medium_term', 'long_term']
+
+        kw['followed_artists'] = form.followed_artists.data
+
+        if not kw['followed_artists'] and not kw['top_artists_time_range']:
+            form.errors['followed_artists'] = 'Must select one seed method'
+            return render_template(
+                'playlist_generator.html',
+                token=session['spotify_token']['access_token'],
+                form=form)
+
+
+        kw['tuneable'] = {}
 
         for field in form.tuneable_fields:
             key = field.name
             value = field.data
             if value < 0 or value > 1:
                 continue
+            # Ignore fields with 0 or 1 values since they make no difference
             if key.startswith('min_') and value == 0:
                 continue
             if key.startswith('max_') and value == 1.0:
                 continue
-            filter_kwargs[key] = value
-        if form.data['use_followed_artists']:
-            filter_kwargs['use_followed_artists'] = True
-        spotifyutil.generate_playlist(token['access_token'], **filter_kwargs)
+            kw['tuneables'][key] = value
+
+        spotifyutil.generate_playlist(token['access_token'], **kw)
         return redirect(url_for('index'))
     return render_template(
-        'playlist_generator.html', token=session['spotify_token']['access_token'],
+        'playlist_generator.html',
+        token=session['spotify_token']['access_token'],
         form=form)

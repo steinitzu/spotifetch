@@ -35,6 +35,12 @@
     </div>
 {% endmacro %}
 
+{% macro render_checkbox(field, classes='checkbox') %}
+    <label class="{{ classes }}">
+        {{ field }} {{ field.label.text|safe }}
+    </label>
+{% endmacro %}
+
 {% macro render_range_slider(fields, label, element_id) %}
     {{ fields[0](type='hidden', **kwargs)|safe }}
     {{ fields[1](type='hidden', **kwargs)|safe }}

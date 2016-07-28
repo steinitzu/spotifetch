@@ -4,22 +4,15 @@
 
     <meta id="spotify_access_token" data="{{token}}" />
 
-    <form class="form" action="{{ url_for('playlist_generator') }}" method="POST" name="form">
-        {% if form.errors %}
-            <div class="container-fluid">
-                <div class="row">
-                    <div class=" form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
-                        <span class="help-block">
-                            {% for field, error in form.errors.items() %}
-                                <p>{{ error }}</p>
-                            {% endfor %}
-                        </span>
+    <form class="form" method="post" onsubmit="submit_form();return false;" name="playlist_gen_form" id="playlist_gen_form">
+        {{ form.hidden_tag() }}<br/>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
+                    <div class="" id="loading-alert">
                     </div>
                 </div>
             </div>
-        {% endif %}
-        {{ form.hidden_tag() }}<br/>
-        <div class="container-fluid">
             <div class="row">
                 <div class=" form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
                     {{ form.playlist_name.label }}<br/>
@@ -36,23 +29,27 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
-                    <label>Time range for top artists</label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
-                    <div class="form-group">
-                    {% for field in form.time_range_fields %}
-                        {{ render_checkbox(field, classes='checkbox-inline') }}
-                    {% endfor %}
-                    </div>
-                </div>
-            </div>
 
+                </div>
+            </div>
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
                     <div class="form-group">
-                        {{ render_checkbox(form.followed_artists, classes='checkbox-inline') }}
+                        <label>Base recommendations on:</label>
+                        {% if form.errors['followed_artists'] %}
+                            <div class="alert alert-danger" role="alert">
+                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
+                                </span>
+                                <span class="sr-only">Error:</span>
+                                {{ form.errors['followed_artists'] }}
+                            </div>
+                        {% endif %}
+                        {{ render_checkbox(form.followed_artists) }}
+                        {% for field in form.time_range_fields %}
+                            {{ render_checkbox(field) }}
+                        {% endfor %}
+                        <br/>
+
                     </div>
                 </div>
             </div>
@@ -60,7 +57,9 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
-                    <button class="btn btn-primary" type="submit">Create playlist!</button>
+                    <button class="btn btn-primary" type="submit">
+                        Create playlist!
+                    </button>
                 </div>
             </div>
         </div>
@@ -76,5 +75,28 @@
 {% block scripts %}
     {{ super() }}
     <script src="{{ url_for('static', filename='scripts/playlist_generator.js') }}"></script>
+    <script>
+     var submit_form = function() {
+         form = document.getElementById('playlist_gen_form');
+         loading_alert = document.getElementById('loading-alert');
+         fetch('/playlist_generator', {
+             method: 'POST',
+             headers: {
+                 "Content-Type": "application/x-www-form-urlencoded"
+             },
+             body: new FormData(form),
+             credentials: 'same-origin'
+         }).then(function(response){
+             window.scrollTo(0, 0);
+             console.log(response);
+             loading_alert.textContent = 'Your playlist has been created!';
+             loading_alert.className = 'alert alert-success';
+
+         });
+         window.scrollTo(0, 0);
+         loading_alert.textContent = 'Your playlist is currently being filled with juicy tracks!';
+         loading_alert.className = 'alert alert-info';
+     }
+    </script>
 
 {% endblock %}

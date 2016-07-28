@@ -8,7 +8,7 @@ auth_scopes = [
     'user-library-read',
     'user-top-read',
     'user-follow-read',
-    'playlist-modify-private'
+    'playlist-modify-public'
     ]
 
 SPOTIFY_AUTHORIZATION_SCOPE = ' '.join(auth_scopes)

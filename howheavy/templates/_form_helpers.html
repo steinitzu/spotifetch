@@ -1,44 +1,9 @@
-{% macro render_field(field, col_width=2) %}
-    {% if field.errors %}
-        {% set klasses = "form-group has-error" %}
-        {% set help_block %}
-        <span class="help-block">
-            {% for error in field.errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </span>
-        {% endset %}
-    {% else %}
-        {% set klasses = "form-group" %}
-        {% set help_block = "" %}
-    {% endif %}
-    <div class="row">
-        {% if field.type == 'BooleanField' %}
-            <div class="checkbox col-lg-{{ col_width }}">
-                <label class="pull-right">
-                    {{ field }} {{ field.label.text|safe }}
-                </label>
-            </div>
-        {% elif field.type == 'PasswordField' %}
-            <div class="{{ klasses }} col-lg-{{ col_width }}">
-                {{ field.label(class_="control-label") }}
-                {{ field(class_="form-control", data_toggle="password", data_placement="before")|safe }}
-                {{ help_block|safe }}
-            </div>
-        {% else %}
-            <div class="{{ klasses }} col-lg-{{ col_width }}">
-                {{ field.label(class_="control-label") }}
-                {{ field(class_="form-control", **kwargs)|safe }}
-                {{ help_block|safe }}
-            </div>
-        {% endif %}
-    </div>
-{% endmacro %}
-
 {% macro render_checkbox(field, classes='checkbox') %}
-    <label class="{{ classes }}">
-        {{ field }} {{ field.label.text|safe }}
-    </label>
+    <div class="{{ classes }}">
+        <label>
+            {{ field }} {{ field.label.text|safe }}
+        </label>
+    </div>
 {% endmacro %}
 
 {% macro render_range_slider(fields, label, element_id) %}
@@ -65,32 +30,6 @@
                     {{ fields[1].data }}
                 </span>
             </p>
-        </div>
-    </div>
-
-
-{% endmacro %}
-
-{% macro render_menu_item(text, url, url_text=None, col_width=2) %}
-    {% if url and not url_text %}
-        {% set url_text = text %}
-        {% set text = '' %}
-    {% endif %}
-    <div class="row">
-        <div class="col-lg-{{ col_width }}">
-            <p class="pull-right">
-                {{ text }} <a href="{{ url }}">{{ url_text }}</a>
-            </p>
-        </div>
-    </div>
-{% endmacro %}
-
-{% macro submit_button(value, col_width=2) %}
-    <div class="row">
-        <div class="col-lg-{{col_width}}">
-            <button type="submit" class="btn btn-primary pull-right">
-                {{ value }}
-            </button>
         </div>
     </div>
 {% endmacro %}

@@ -10,6 +10,8 @@ Object.keys(matches).forEach(function(key) {
     var valueMax = document.getElementById('max'+element.id);
     var spanMin = document.getElementById('span_min'+element.id);
     var spanMax = document.getElementById('span_max'+element.id);
+    console.log('max '+valueMin.value);
+    console.log('min '+valueMax.value);
     slider_el = document.getElementById('slider'+element.id);
     noUiSlider.create(slider_el, {
         start: [valueMin.value, valueMax.value],

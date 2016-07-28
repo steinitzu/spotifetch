@@ -1,4 +1,7 @@
+import time
+
 from flask import redirect, url_for, request, session, render_template
+from flask import Response, jsonify
 
 from . import app, log
 from .spotifyutil import get_spotify_oauth, refresh_token
@@ -44,14 +47,18 @@ def app_start():
 
 @app.route('/playlist_generator', methods=['GET', 'POST'])
 def playlist_generator():
-    token = session.get('spotify_token')
+    token = session['spotify_token']
+    log.info('token:{}'.format(token))
     if not token:
         return redirect(url_for('app_authorize'))
-    refresh_token(token)
+    session['spotify_token'] = token = refresh_token(token)
     log.info('token:{}'.format(token))
     form = forms.PlaylistGenerator(request.form)
 
-    if form.validate_on_submit():
+    if request.method == 'POST':
+        log.info('Form was posted')
+        # time.sleep(10);
+        # return 'all good', 200, {'Content-Type': 'text/plain'}
         kw = {}
         kw['playlist_name'] = (
             form.playlist_name.data or 'Generated playlist')
@@ -66,12 +73,11 @@ def playlist_generator():
         kw['followed_artists'] = form.followed_artists.data
 
         if not kw['followed_artists'] and not kw['top_artists_time_range']:
-            form.errors['followed_artists'] = 'Must select one seed method'
+            form.errors['followed_artists'] = 'Please check at least one of the following boxes and try again :)'
             return render_template(
                 'playlist_generator.html',
                 token=session['spotify_token']['access_token'],
                 form=form)
-
 
         kw['tuneable'] = {}
 
@@ -85,10 +91,11 @@ def playlist_generator():
                 continue
             if key.startswith('max_') and value == 1.0:
                 continue
-            kw['tuneables'][key] = value
+            kw['tuneable'][key] = value
 
-        spotifyutil.generate_playlist(token['access_token'], **kw)
-        return redirect(url_for('index'))
+        puri = spotifyutil.generate_playlist(token['access_token'], **kw)
+        return puri, 200, {'Content-Type': 'text/plain'}
+        # return redirect(url_for('index'))
     return render_template(
         'playlist_generator.html',
         token=session['spotify_token']['access_token'],

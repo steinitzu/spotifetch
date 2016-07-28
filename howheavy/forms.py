@@ -42,11 +42,11 @@ class TextDisplayWidget(object):
 
 class PlaylistGenerator(Form):
     playlist_name = StringField(render_kw={'placeholder':'Name your playlist'})
-    time_range_short_term = BooleanField('Short term')
-    time_range_medium_term = BooleanField('Medium term')
-    time_range_long_term = BooleanField('Long term')
+    time_range_short_term = BooleanField('My top 50 artists: ~4 weeks back')
+    time_range_medium_term = BooleanField('My top 50 artists: ~6 months back')
+    time_range_long_term = BooleanField('My top 50 artists: several years back')
     followed_artists = BooleanField(
-        'Use my followed artists')
+        'My followed artists')
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)

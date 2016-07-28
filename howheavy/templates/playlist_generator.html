@@ -4,7 +4,7 @@
 
     <meta id="spotify_access_token" data="{{token}}" />
 
-    <form class="form" method="post" onsubmit="submit_form();return false;" name="playlist_gen_form" id="playlist_gen_form">
+    <form class="form" method="post" action="#" onsubmit="submit_form();return false;" name="form" id="playlist_gen_form">
         {{ form.hidden_tag() }}<br/>
         <div class="container-fluid">
             <div class="row">
@@ -81,9 +81,6 @@
          loading_alert = document.getElementById('loading-alert');
          fetch('/playlist_generator', {
              method: 'POST',
-             headers: {
-                 "Content-Type": "application/x-www-form-urlencoded"
-             },
              body: new FormData(form),
              credentials: 'same-origin'
          }).then(function(response){
@@ -92,6 +89,8 @@
              loading_alert.textContent = 'Your playlist has been created!';
              loading_alert.className = 'alert alert-success';
 
+         }).then(function(error){
+             console.log(error);
          });
          window.scrollTo(0, 0);
          loading_alert.textContent = 'Your playlist is currently being filled with juicy tracks!';

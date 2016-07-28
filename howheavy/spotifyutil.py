@@ -196,6 +196,7 @@ artist_seeds = [
 
 
 def generate_playlist(access_token, **kwargs):
+    log.info('Generating playlist')
     sp = spotipy.Spotify(auth=access_token)
     user_id = sp.current_user()['id']
     playlist_name = kwargs.get('playlist_name', 'Generated playlist')

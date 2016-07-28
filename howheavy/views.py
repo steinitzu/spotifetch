@@ -57,6 +57,7 @@ def playlist_generator():
 
     if request.method == 'POST':
         log.info('Form was posted')
+        log.info(form.data)
         # time.sleep(10);
         # return 'all good', 200, {'Content-Type': 'text/plain'}
         kw = {}
@@ -72,8 +73,10 @@ def playlist_generator():
 
         kw['followed_artists'] = form.followed_artists.data
 
+
         if not kw['followed_artists'] and not kw['top_artists_time_range']:
-            form.errors['followed_artists'] = 'Please check at least one of the following boxes and try again :)'
+            msg = 'Please check at least one of the following boxes and try again :)'
+            return msg, 400, {'Content-Type': 'text/plain'}
             return render_template(
                 'playlist_generator.html',
                 token=session['spotify_token']['access_token'],
@@ -92,7 +95,7 @@ def playlist_generator():
             if key.startswith('max_') and value == 1.0:
                 continue
             kw['tuneable'][key] = value
-
+        log.info('Will call generate_playlist')
         puri = spotifyutil.generate_playlist(token['access_token'], **kw)
         return puri, 200, {'Content-Type': 'text/plain'}
         # return redirect(url_for('index'))

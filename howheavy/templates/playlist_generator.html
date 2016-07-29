@@ -51,7 +51,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn btn-primary" type="submit" id="submit-button">
                         Create playlist!
                     </button>
                 </div>
@@ -75,12 +75,14 @@
          loading_alert = document.getElementById('loading-alert');
          loading_alert_text = document.getElementById('loading-alert-text');
          loading_alert_link = document.getElementById('loading-alert-link');
+         submit_button = document.getElementById('submit-button');
          fetch('/playlist_generator', {
              method: 'POST',
              body: new FormData(form),
              credentials: 'same-origin'
          }).then(function(response){
              window.scrollTo(0, 0);
+             submit_button.disabled = false;
              if (!response.ok) {
                  loading_alert.className = 'alert alert-danger';
                  response.text().then(function(message) {
@@ -99,6 +101,7 @@
          });
 
          window.scrollTo(0, 0);
+         submit_button.disabled = true;
          loading_alert_text.textContent = 'Your playlist is currently being filled with juicy tracks!';
          loading_alert.className = 'alert alert-info';
      }

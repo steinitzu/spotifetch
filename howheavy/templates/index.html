@@ -1,5 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
     {{ super() }}
-    <a href="{{ url_for('app_authorize') }}">Start app</a>
+
+    <div class="container-fluid text-center">
+        <p>
+        </p>
+        <a href="{{ url_for('app_authorize') }}">
+            <button id="start-button" class="btn btn-primary btn-lg">
+                Start making playlists!
+            </button>
+        </a>
+    </div>
+
+
+
 {% endblock %}

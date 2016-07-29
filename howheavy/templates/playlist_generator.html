@@ -10,6 +10,8 @@
             <div class="row">
                 <div class="form-group col-lg-4 col-md-6 col-sm-8 col-xs-9">
                     <div class="" id="loading-alert">
+                        <span id="loading-alert-text"></span>
+                        <a href="" id="loading-alert-link"></a>
                     </div>
                 </div>
             </div>
@@ -35,15 +37,7 @@
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-sm-8 col-xs-9">
                     <div class="form-group">
-                        <label>Base recommendations on:</label>
-                        {% if form.errors['followed_artists'] %}
-                            <div class="alert alert-danger" role="alert">
-                                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
-                                </span>
-                                <span class="sr-only">Error:</span>
-                                {{ form.errors['followed_artists'] }}
-                            </div>
-                        {% endif %}
+                        <label>Get tracks based on:</label>
                         {{ render_checkbox(form.followed_artists) }}
                         {% for field in form.time_range_fields %}
                             {{ render_checkbox(field) }}
@@ -79,21 +73,33 @@
      var submit_form = function() {
          form = document.getElementById('playlist_gen_form');
          loading_alert = document.getElementById('loading-alert');
+         loading_alert_text = document.getElementById('loading-alert-text');
+         loading_alert_link = document.getElementById('loading-alert-link');
          fetch('/playlist_generator', {
              method: 'POST',
              body: new FormData(form),
              credentials: 'same-origin'
          }).then(function(response){
              window.scrollTo(0, 0);
-             console.log(response);
-             loading_alert.textContent = 'Your playlist has been created!';
+             if (!response.ok) {
+                 loading_alert.className = 'alert alert-danger';
+                 response.text().then(function(message) {
+                     loading_alert_text.textContent = message;
+                 });
+                 return;
+             };
+             loading_alert_text.textContent = 'Your playlist has been created!';
              loading_alert.className = 'alert alert-success';
+             response.text().then(function(result) {
+                 console.log(result);
+                 loading_alert_link.textContent += ' View it here!';
+                 loading_alert_link.href = result;
+             });
 
-         }).then(function(error){
-             console.log(error);
          });
+
          window.scrollTo(0, 0);
-         loading_alert.textContent = 'Your playlist is currently being filled with juicy tracks!';
+         loading_alert_text.textContent = 'Your playlist is currently being filled with juicy tracks!';
          loading_alert.className = 'alert alert-info';
      }
     </script>

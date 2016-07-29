@@ -9,7 +9,7 @@
 
 {% block title %}Howheavy{% endblock %}
 
-{% from '_form_helpers.html' import render_field, submit_button, render_range_slider, render_checkbox %}
+{% from '_form_helpers.html' import render_range_slider, render_checkbox %}
 
 {% block body %}
 
@@ -28,13 +28,6 @@
     </div>
     {% block scripts %}
         {{super()}}
-
-        <!-- <script src="https://fb.me/react-15.2.1.js"></script>
-             <script src="https://fb.me/react-dom-15.2.1.js"></script> -->
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script> -->
-        <!-- <script src="{{ url_for('static', filename='scripts/jsonpipe/jsonpipe.js') }}"></script>
-             <script src="http://requirejs.org/docs/release/2.2.0/minified/require.js"></script> -->
         <script src="{{ url_for('static', filename='scripts/nouislider/nouislider.min.js') }}"></script>
-
     {% endblock %}
 {% endblock %}

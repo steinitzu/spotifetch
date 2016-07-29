@@ -7,8 +7,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import spotipy.util
 
-from . import app
-from . import log
+from . import app, log
 from .util import chunks
 from .util import dict_get_nested
 
@@ -137,54 +136,6 @@ def get_recommendations(access_token, seed_artists, limit=100, **kwargs):
                             **kwargs))
     log.info('Number of track generators:{}'.format(len(gens)))
     return itertools.chain(*gens)
-
-
-# def generate_playlist(access_token, **kwargs):
-#     """
-#     Generate and save a playlist using top artists.
-#     All tuneable track attributes described at:
-#     https://developer.spotify.com/web-api/get-recommendations/
-#     are supported as kwargs.
-#     """
-#     spotify = spotipy.Spotify(auth=access_token)
-#     user_id = spotify.current_user()['id']
-#     name = kwargs.pop('playlist_name')
-#     playlist = spotify.user_playlist_create(
-#         user_id, name, public=False)
-
-#     followed_artists = 'use_followed_artists' in kwargs
-
-#     log.debug('Playlist_id:{}'.format(playlist['id']))
-#     log.debug('Kwargs for playlist generation:{}'.format(kwargs))
-
-#     time_range = kwargs.pop('time_range')
-#     artists = itertools.chain(
-#         *[get_top(access_token, top_type='artists', time_range=tr)
-#           for tr in time_range])
-
-#     if followed_artists:
-#         artists = itertools.chain(artists, get_followed_artists(access_token))
-
-#     recommendations = get_recommendations(
-#         access_token, artists, limit=50, **kwargs)
-
-#     added = set()
-#     queue = []
-
-#     for track in recommendations:
-#         uri = track['uri']
-#         if uri in added:
-#             continue
-#         queue.append(uri)
-#         if len(queue) == 100:
-#             spotify.user_playlist_add_tracks(
-#                 user_id, playlist['id'], queue)
-#             added.update(queue)
-#             queue = []
-#     # Add any remaining tracks to the playlist
-#     if queue:
-#         spotify.user_playlist_add_tracks(
-#             user_id, playlist['id'], queue)
 
 
 artist_seeds = [

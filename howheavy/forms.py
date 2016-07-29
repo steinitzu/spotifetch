@@ -1,8 +1,10 @@
+import logging
+
 from flask_wtf import Form
 from wtforms import DecimalField, FloatField, BooleanField, StringField
 from wtforms.widgets.core import HTMLString, html_params, escape
 
-from . import log
+from . import app, log
 
 
 tuneable_attrs = (
@@ -35,7 +37,6 @@ class TextDisplayWidget(object):
         kwargs['class'] = 'not-a-textbox'
         kwargs['readonly'] = True
         params = html_params(**kwargs)
-        log.info(params)
         html = '<input %s></input>'
         return HTMLString(html % (params))
 

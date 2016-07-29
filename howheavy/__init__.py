@@ -1,18 +1,26 @@
-import logging
+__version__ = 0.1
 
-import spotipy
-import spotipy.util
+import logging
+from logging.handlers import RotatingFileHandler
+import os
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
-
-log = logging.getLogger(__name__)
-log.addHandler(logging.StreamHandler())
-log.setLevel(logging.DEBUG)
-
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 app.config.from_envvar('HOWHEAVY_CONFIG_PATH')
+
+handler = RotatingFileHandler(
+    os.path.join(app.config['LOG_DIRECTORY'], '{}.log'.format(__name__)),
+    maxBytes=10000, backupCount=1)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    '%(asctime)s:%(msecs)d-%(levelname)s-%(module)s:%(lineno)d:%(message)s')
+handler.setFormatter(formatter)
+log = logging.getLogger(__name__)
+log.addHandler(handler)
+log.setLevel(logging.INFO)
 
 bootstrap = Bootstrap(app)
 

@@ -1,3 +1,0 @@
-[submodule "howheavy/static/scripts/jsonpipe"]
-	path = howheavy/static/scripts/jsonpipe
-	url = git@github.com:eBay/jsonpipe.git

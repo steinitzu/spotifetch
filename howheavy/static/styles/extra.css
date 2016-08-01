@@ -17,6 +17,21 @@
     display: inline;
 }
 
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.btn-xl {
+    padding: 18px 28px;
+    font-size: 22px;
+    border-radius: 8px;
+}
 
 .slider .noUi-base {
     /* background: white; */
@@ -25,7 +40,7 @@
     /* background: white; */
 }
 .slider .noUi-connect {
-    background: #23CF5F;
+    background: #1ED760;
     /* background: black; */
 }
 
@@ -55,7 +70,6 @@
     background: black;
 
 }
-
 
 
 

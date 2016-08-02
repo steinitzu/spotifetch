@@ -183,11 +183,11 @@ def generate_playlist(access_token, **kwargs):
             continue
         track_count += 1
         queue.append(uri)
+        added.add(uri)
         if len(queue) == 100:
             # Can only add 100 tracks at a time through the spotify api
             sp.user_playlist_add_tracks(
                 user_id, playlist['id'], queue)
-            added.update(queue)
             queue = []
     # Add any remaining tracks to the playlist
     if queue:

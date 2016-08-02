@@ -155,6 +155,9 @@ def generate_playlist(access_token, **kwargs):
     playlist = sp.user_playlist_create(
         user_id, playlist_name, public=True)
 
+    log.info('Playlist created, begin adding tracks:{}'.format(
+        playlist['uri']))
+
     seed_gens = []
 
     if kwargs.get('followed_artists'):
@@ -189,4 +192,5 @@ def generate_playlist(access_token, **kwargs):
     if queue:
         sp.user_playlist_add_tracks(
             user_id, playlist['id'], queue)
+    log.info('Playlist completed:{}'.format(playlist['uri']))
     return playlist['uri']

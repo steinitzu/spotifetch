@@ -49,11 +49,10 @@ def app_start():
 @app.route('/playlist_generator', methods=['GET', 'POST'])
 def playlist_generator():
     token = session['spotify_token']
-    log.info('token:{}'.format(token))
     if not token:
         return redirect(url_for('app_authorize'))
     session['spotify_token'] = token = refresh_token(token)
-    log.info('token:{}'.format(token))
+    log.info('token:{}'.format(token['access_token']))
     form = forms.PlaylistGenerator(request.form)
 
     if request.method == 'POST':

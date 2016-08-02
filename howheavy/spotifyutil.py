@@ -175,12 +175,13 @@ def generate_playlist(access_token, **kwargs):
 
     added = set()
     queue = []
-
+    track_count = 0
     for track in recommendations:
         uri = track['uri']
         if uri in added:
             # No duplicates
             continue
+        track_count += 1
         queue.append(uri)
         if len(queue) == 100:
             # Can only add 100 tracks at a time through the spotify api
@@ -192,5 +193,6 @@ def generate_playlist(access_token, **kwargs):
     if queue:
         sp.user_playlist_add_tracks(
             user_id, playlist['id'], queue)
-    log.info('Playlist completed:{}'.format(playlist['uri']))
+    log.info('Playlist completed:{}:total tracks:{}'.format(
+        playlist['uri'], track_count))
     return playlist['uri']

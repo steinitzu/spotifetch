@@ -13,7 +13,7 @@ app.config.from_envvar('HOWHEAVY_CONFIG_PATH')
 
 handler = RotatingFileHandler(
     os.path.join(app.config['LOG_DIRECTORY'], '{}.log'.format(__name__)),
-    maxBytes=10000, backupCount=1)
+    maxBytes=100000, backupCount=10)
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter(
     '%(asctime)s:%(msecs)d-%(levelname)s-%(module)s:%(lineno)d:%(message)s')

@@ -1,15 +1,16 @@
 import itertools
 import time
 import os
-import logging
+import random
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import spotipy.util
 
 from . import app, log
-from .util import chunks
-from .util import dict_get_nested
+from .util import dict_get_nested, shrink_nested_list, chunked
+
+TRACK_LIMIT = 10000
 
 
 def get_spotify_oauth():
@@ -126,7 +127,7 @@ def get_followed_artists(access_token):
 def get_recommendations(access_token, seed_artists, limit=100, **kwargs):
     artist_ids = list(set([a['id'] for a in seed_artists]))
     log.info('Number of artists used as seed:{}'.format(len(artist_ids)))
-    log.info('Tuneables:{}'.format(kwargs))
+
     spotify = spotipy.Spotify(auth=access_token)
     endpoint = 'recommendations'
     gens = []
@@ -139,6 +140,7 @@ def get_recommendations(access_token, seed_artists, limit=100, **kwargs):
                             limit=limit,
                             **kwargs))
     log.info('Number of track generators:{}'.format(len(gens)))
+    return gens
     return itertools.chain(*gens)
 
 
@@ -176,6 +178,9 @@ def generate_playlist(access_token, **kwargs):
         seed_gens.append(
             get_top(access_token, top_type='artists', time_range=tr))
 
+    log.info('{} - Tuneables:{}'.format(
+        playlist['uri'], kwargs['tuneable']))
+
     seed_gens = itertools.chain(*seed_gens)
 
     recommendations = get_recommendations(
@@ -206,3 +211,109 @@ def generate_playlist(access_token, **kwargs):
     log.info('Playlist completed:{}:total tracks:{}'.format(
         playlist['uri'], track_count))
     return playlist['uri']
+
+
+class PlaylistGenerator(object):
+    def __init__(self, access_token, **kwargs):
+        self.access_token = access_token
+        self.spotify = spotipy.Spotify(auth=access_token)
+        self.user = self.spotify.current_user()
+        self.playlist_name = kwargs.get('playlist_name')
+        self.tuneable = kwargs.get('tuneable', {})
+        self.top_artists_time_range = kwargs.get(
+            'top_artists_time_range', [])
+        self.followed_artists = kwargs.get('followed_artists', False)
+        self.single_recommendation_limit = 50
+
+    def get_seed_artists(self):
+        gens = []
+        for tr in self.top_artists_time_range:
+            gens.append(
+                get_top(self.access_token,
+                        top_type='artists', time_range=tr))
+        if self.followed_artists:
+            gens.append(
+                get_followed_artists(self.access_token))
+        return itertools.chain(*gens)
+
+    def get_recommendations(self, seed_artists):
+        artist_ids = list(set([a['id'] for a in seed_artists]))
+        log.info('Number of artists used as seed:{}'.format(len(artist_ids)))
+        recommendations = []
+
+        added = set()
+
+        for artist in artist_ids:
+            log.info('Getting recommendations for artist:{}'.format(artist))
+            recs = iterate_results(self.spotify,
+                                   'recommendations',
+                                   target_key='tracks',
+                                   seed_artists=[artist],
+                                   limit=self.single_recommendation_limit,
+                                   **self.tuneable)
+            l = []
+            for track in recs:
+                tid = track['id']
+                if tid in added:
+                    continue
+                added.add(tid)
+                l.append(tid)
+
+            recommendations.append(l)
+        return recommendations
+
+    def get_track_list(self, recs):
+        log.info('Total tracks before shrink:{}'.format(
+            sum([len(l) for l in recs])))
+        recs = shrink_nested_list(
+            recs,
+            limit=TRACK_LIMIT)
+        recs = list(itertools.chain(*recs))
+        random.shuffle(recs)
+        return recs
+
+    def create_playlist(self):
+        return self.spotify.user_playlist_create(
+            self.user['id'], self.playlist_name, public=True)
+
+    def add_to_playlist(self, playlist, tracks):
+        count = 0
+        for chunk in chunked(tracks, 50):
+            self.spotify.user_playlist_add_tracks(
+                self.user['id'], playlist['id'], chunk)
+            count += len(chunk)
+        log.info('{} tracks added to {}'.format(
+            count, playlist['uri']))
+
+    def generate_playlist(self):
+        log.info('User:"{}" starts generating playlist'.format(
+            self.user['id']))
+
+        playlist = self.create_playlist()
+
+        log.info('Playlist:"{}" created'.format(playlist['uri']))
+        log.info('Begin getting seeds')
+
+        seeds = self.get_seed_artists()
+
+        log.info('Begin getting recommendations')
+
+        recs = self.get_recommendations(seeds)
+
+        log.info('Playlist:"{}" Total seeds:{}'.format(
+            playlist['uri'], len(recs)))
+
+        tracks = self.get_track_list(recs)
+
+        log.info('Playlist:"{}" Total tracks after shrink:{}'.format(
+            playlist['uri'], len(tracks)))
+
+        log.info('Playlist:"{}" begin adding tracks'.format(
+            playlist['uri']))
+
+        self.add_to_playlist(playlist, tracks)
+
+        # log.info('{} tracks added to {}'.format(
+        #     playlist['uri'], len(tracks)))
+
+        return playlist['uri']

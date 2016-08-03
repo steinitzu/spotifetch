@@ -94,7 +94,9 @@ def playlist_generator():
             if key.startswith('max_') and value == 1.0:
                 continue
             kw['tuneable'][key] = value
-        puri = spotifyutil.generate_playlist(token['access_token'], **kw)
+        gen = spotifyutil.PlaylistGenerator(
+            token['access_token'], **kw)
+        puri = gen.generate_playlist()
         return puri, 200, {'Content-Type': 'text/plain'}
     return render_template(
         'playlist_generator.html',

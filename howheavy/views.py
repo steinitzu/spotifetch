@@ -1,5 +1,6 @@
 import time
 import logging
+from collections import OrderedDict
 
 from flask import redirect, url_for, request, session, render_template
 from flask import Response, jsonify
@@ -99,3 +100,23 @@ def playlist_generator():
         'playlist_generator.html',
         token=session['spotify_token']['access_token'],
         form=form)
+
+
+@app.route('/user_data')
+def user_data():
+    token = session.get('spotify_token')
+    if not token:
+        return redirect(url_for('app_authorize'))
+    session['spotify_token'] = token = refresh_token(token)
+    log.info('token:{}'.format(token['access_token']))
+
+    t = token['access_token']
+    data = {}
+    data['artists'] = OrderedDict()
+    data['current_user'] = spotifyutil.get_current_user(t)
+    for tr in ('short_term', 'medium_term', 'long_term'):
+        data['artists']['top_artists_'+tr] = spotifyutil.get_top(
+            t, top_type='artists', time_range=tr)
+    data['artists']['followed_artists'] = spotifyutil.get_followed_artists(t)
+    return render_template('user_data.html',
+                           user_data=data)

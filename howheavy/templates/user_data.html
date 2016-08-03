@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+    {{ super() }}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4">
+                <p>
+                    <strong>Your user ID is:</strong>
+                    <a target="_blank" href="{{ user_data['current_user']['uri'] }}">
+                        {{ user_data['current_user']['id'] }}
+                    </a>
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            {% for key, value in user_data['artists'].iteritems() %}
+                <div class="col-lg-2">
+                    <ol>
+                        <label>{{ key }}</label>
+                        {% for artist in value %}
+                            <li>{{ artist['name'] }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+{% endblock %}

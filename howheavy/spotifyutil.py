@@ -89,6 +89,10 @@ def iterate_results(spotify, endpoint, *args, **kwargs):
             break
 
 
+def get_current_user(access_token):
+    return spotipy.Spotify(auth=access_token).current_user()
+
+
 def get_saved_tracks(access_token):
     spotify = spotipy.Spotify(auth=access_token)
     return iterate_results(spotify, 'current_user_saved_tracks', limit=50)

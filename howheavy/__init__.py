@@ -3,6 +3,7 @@ __version__ = 0.1
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+from datetime import datetime
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -23,5 +24,12 @@ log.addHandler(handler)
 log.setLevel(logging.INFO)
 
 bootstrap = Bootstrap(app)
+
+
+@app.context_processor
+def inject_variables():
+    return dict(utcnow=datetime.utcnow)
+
+
 
 from . import views

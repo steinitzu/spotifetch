@@ -1,4 +1,5 @@
 {% extends "bootstrap/base.html" %}
+
 {% block styles %}
     <link rel="stylesheet" type= "text/css"
           href="{{url_for('static', filename='styles/extra.css')}}">
@@ -9,23 +10,44 @@
 
 {% block title %}Spotifetch - playlist generator{% endblock %}
 
+{% block head %}
+    {{super()}}
+    <meta name="keywords" content="spotify, playlist, playlists, playlist generator, music" />
+{% endblock %}
+
+
+
 {% from '_form_helpers.html' import render_range_slider, render_checkbox %}
 
 {% block body %}
-
-    <div class="container-fluid">
+    <div class="body-block">
         {% block content %}
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{category}}">
-                            {{message}}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
         {% endblock %}
+        <div class="push">
+        </div>
     </div>
+    <div class="container-fluid">
+        <div class="footer text-center">
+            <span>
+                Copyright © {{ utcnow().year }} Steinþór Pálsson
+            </span>
+            <br/>
+            <span>
+                Contact author:
+                <a href="mailto:spotifetch@gmail.com">
+                    spotifetch@gmail.com
+                </a>
+            </span>
+            <br/>
+            <span>
+                Powered by
+                <a href="http://spotify.com/">
+                    Spotify
+                </a>
+            </span>
+        </div>
+    </div>
+
     {% block scripts %}
         {{super()}}
         <script src="{{ url_for('static', filename='scripts/nouislider/nouislider.min.js') }}"></script>

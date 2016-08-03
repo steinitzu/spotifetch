@@ -23,6 +23,12 @@
             </div>
         </div>
         <div class="container-fluid">
+            <label>
+                <a href="http://developer.echonest.com/acoustic-attributes.html"
+                target="_blank">
+                    What do the sliders do? Acoustic attributes explained.
+                </a>
+            </label>
             {% for field_set in form.tuneable_fields | batch(2) %}
                 {% set element_id = field_set[0]['name'][3:] %}
                 {{ render_range_slider(field_set, field_set[0].label, element_id) }}

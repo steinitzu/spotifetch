@@ -2,26 +2,20 @@
 {% block content %}
     {{ super() }}
     <div class="container-fluid">
-        <div class="page-header text-center">
+        <div class="page-header borderless text-center">
             <h1>Spotifetch</h1>
             <p>Make your own huge personalized Spotify playlist in seconds!</p>
-            <a class="btn btn-primary btn-lg" href="{{ url_for('app_authorize') }}" role="button">
+
+        </div>
+        <div class="row text-center">
+            <div class="col-lg-12">
+
+            <a class="btn btn-xl btn-primary" href="{{ url_for('app_authorize') }}" role="button">
                 Get started!
             </a>
+            </div>
         </div>
     </div>
-    <!-- <div class="container-fluid">
-         <div class="vertical-center">
-         <div class="text-center">
-         <a href="{{ url_for('app_authorize') }}">
-         <button id="start-button" type="button" class="btn-xl btn-primary">
-         Start making playlists!
-         </button>
-         </a>
-         </div>
-         </div>
-         </div> -->
-
-
-
+    <div class="container-fluid">
+    </div>
 {% endblock %}

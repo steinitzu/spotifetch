@@ -48,7 +48,7 @@ def app_start():
 
 @app.route('/playlist_generator', methods=['GET', 'POST'])
 def playlist_generator():
-    token = session['spotify_token']
+    token = session.get('spotify_token')
     if not token:
         return redirect(url_for('app_authorize'))
     session['spotify_token'] = token = refresh_token(token)

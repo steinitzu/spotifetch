@@ -161,10 +161,14 @@ def generate_playlist(access_token, **kwargs):
     seed_gens = []
 
     if kwargs.get('followed_artists'):
+        log.info('{} - using followed_artists'.format(
+            playlist['uri']))
         seed_gens.append(
             get_followed_artists(access_token))
 
     for tr in kwargs['top_artists_time_range']:
+        log.info('{} - using top_artists_{}'.format(
+            playlist['uri'], tr))
         seed_gens.append(
             get_top(access_token, top_type='artists', time_range=tr))
 

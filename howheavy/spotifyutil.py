@@ -279,6 +279,7 @@ class PlaylistGenerator(object):
     def add_to_playlist(self, playlist, tracks):
         count = 0
         for chunk in chunked(tracks, 50):
+            time.sleep(0.3)
             self.spotify.user_playlist_add_tracks(
                 self.user['id'], playlist['id'], chunk)
             count += len(chunk)

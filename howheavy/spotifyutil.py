@@ -124,6 +124,16 @@ def get_followed_artists(access_token):
                            limit=50)
 
 
+def get_saved_album_artists(access_token):
+    spotify = spotipy.Spotify(auth=access_token)
+    albums = iterate_results(spotify,
+                             'current_user_saved_albums',
+                             limit=50)
+    for album in albums:
+        for artist in album['album']['artists']:
+            yield artist
+
+
 def get_recommendations(access_token, seed_artists, limit=100, **kwargs):
     artist_ids = list(set([a['id'] for a in seed_artists]))
     log.info('Number of artists used as seed:{}'.format(len(artist_ids)))
@@ -144,85 +154,18 @@ def get_recommendations(access_token, seed_artists, limit=100, **kwargs):
     return itertools.chain(*gens)
 
 
-artist_seeds = [
-    'top_artists_short_range',
-    'top_artists_medium_range',
-    'top_artists_long_range',
-    'followed_artists'
-    ]
-
-
-def generate_playlist(access_token, **kwargs):
-    log.info('Generating playlist')
-    sp = spotipy.Spotify(auth=access_token)
-    user_id = sp.current_user()['id']
-    playlist_name = kwargs.get('playlist_name', 'Generated playlist')
-
-    playlist = sp.user_playlist_create(
-        user_id, playlist_name, public=True)
-
-    log.info('Playlist created, begin adding tracks:{}'.format(
-        playlist['uri']))
-
-    seed_gens = []
-
-    if kwargs.get('followed_artists'):
-        log.info('{} - using followed_artists'.format(
-            playlist['uri']))
-        seed_gens.append(
-            get_followed_artists(access_token))
-
-    for tr in kwargs['top_artists_time_range']:
-        log.info('{} - using top_artists_{}'.format(
-            playlist['uri'], tr))
-        seed_gens.append(
-            get_top(access_token, top_type='artists', time_range=tr))
-
-    log.info('{} - Tuneables:{}'.format(
-        playlist['uri'], kwargs['tuneable']))
-
-    seed_gens = itertools.chain(*seed_gens)
-
-    recommendations = get_recommendations(
-        access_token, seed_gens, limit=50, **kwargs['tuneable'])
-
-    added = set()
-    queue = []
-    track_count = 0
-    for track in recommendations:
-        uri = track['uri']
-        if uri in added:
-            # No duplicates
-            continue
-        track_count += 1
-        queue.append(uri)
-        added.add(uri)
-        if len(queue) == 50:
-            # Can only add 100 tracks at a time through the spotify api
-            time.sleep(0.3)
-            sp.user_playlist_add_tracks(
-                user_id, playlist['id'], queue)
-            queue = []
-    # Add any remaining tracks to the playlist
-    if queue:
-        time.sleep(0.3)
-        sp.user_playlist_add_tracks(
-            user_id, playlist['id'], queue)
-    log.info('Playlist completed:{}:total tracks:{}'.format(
-        playlist['uri'], track_count))
-    return playlist['uri']
-
-
 class PlaylistGenerator(object):
     def __init__(self, access_token, **kwargs):
         self.access_token = access_token
         self.spotify = spotipy.Spotify(auth=access_token)
         self.user = self.spotify.current_user()
-        self.playlist_name = kwargs.get('playlist_name')
+        self.playlist_name = kwargs.get('playlist_name',
+                                        'Spotifetch generated playlist')
         self.tuneable = kwargs.get('tuneable', {})
         self.top_artists_time_range = kwargs.get(
             'top_artists_time_range', [])
         self.followed_artists = kwargs.get('followed_artists', False)
+        self.saved_album_artists = kwargs.get('saved_album_artists', False)
         self.single_recommendation_limit = 50
 
     def get_seed_artists(self):
@@ -234,6 +177,9 @@ class PlaylistGenerator(object):
         if self.followed_artists:
             gens.append(
                 get_followed_artists(self.access_token))
+        if self.saved_album_artists:
+            gens.append(
+                get_saved_album_artists(self.access_token))
         return itertools.chain(*gens)
 
     def get_recommendations(self, seed_artists):

@@ -45,6 +45,7 @@
                     <div class="form-group">
                         <label>Get tracks based on:</label>
                         {{ render_checkbox(form.followed_artists) }}
+                        {{ render_checkbox(form.saved_album_artists) }}
                         {% for field in form.time_range_fields %}
                             {{ render_checkbox(field) }}
                         {% endfor %}

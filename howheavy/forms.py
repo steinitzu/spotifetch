@@ -48,6 +48,8 @@ class PlaylistGenerator(Form):
     time_range_long_term = BooleanField('My top 50 artists: several years back')
     followed_artists = BooleanField(
         'My followed artists')
+    saved_album_artists = BooleanField(
+        'My saved album artists')
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)

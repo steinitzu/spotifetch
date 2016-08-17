@@ -71,9 +71,11 @@ def playlist_generator():
                     field.name[len('time_range_'):])
 
         kw['followed_artists'] = form.followed_artists.data
+        kw['saved_album_artists'] = form.saved_album_artists.data
 
-
-        if not kw['followed_artists'] and not kw['top_artists_time_range']:
+        if (not kw['followed_artists']
+            and not kw['top_artists_time_range']
+            and not kw['saved_album_artists']):
             msg = 'Please check at least one of the checkboxes and try again :)'
             return msg, 400, {'Content-Type': 'text/plain'}
             return render_template(

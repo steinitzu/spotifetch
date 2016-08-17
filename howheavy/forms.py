@@ -8,14 +8,15 @@ from . import app, log
 
 
 tuneable_attrs = (
-        'acousticness',
-        'danceability',
-        'energy',
-        'instrumentalness',
-        'liveness',
-        'speechiness',
-        'valence',
+    'acousticness',
+    'danceability',
+    'energy',
+    'instrumentalness',
+    'liveness',
+    'speechiness',
+    'valence',
     )
+
 
 class InlineButtonWidget(object):
     def __call__(self, field, **kwargs):

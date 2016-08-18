@@ -1,21 +1,38 @@
 import logging
 
 from flask_wtf import Form
-from wtforms import DecimalField, FloatField, BooleanField, StringField
+from wtforms import DecimalField, FloatField, BooleanField, StringField, IntegerField
 from wtforms.widgets.core import HTMLString, html_params, escape
 
 from . import app, log
 
 
 tuneable_attrs = (
-    'acousticness',
-    'danceability',
-    'energy',
-    'instrumentalness',
-    'liveness',
-    'speechiness',
-    'valence',
-    )
+    dict(name='acousticness', min=0.0, max=1.0,
+         step=0.01,
+         field_type=FloatField),
+    dict(name='danceability', min=0.0, max=1.0,
+         step=0.01,
+         field_type=FloatField),
+    dict(name='energy', min=0.0, max=1.0,
+         step=0.01,
+         field_type=FloatField),
+    dict(name='instrumentalness', min=0.0, max=1.0,
+         step=0.01,
+         field_type=FloatField),
+    dict(name='liveness', min=0.0, max=1.0,
+         step=0.01,
+         field_type=FloatField),
+    dict(name='speechiness', min=0.0, max=1.0,
+         step=0.01,
+         field_type=FloatField),
+    dict(name='valence', min=0.0, max=1.0,
+         step=0.01,
+         field_type=FloatField),
+    dict(name='popularity', min=0, max=100,
+         step=1,
+         field_type=IntegerField),
+)
 
 
 class InlineButtonWidget(object):
@@ -68,11 +85,22 @@ class PlaylistGenerator(Form):
                 pass
 
 
-
 for attr in tuneable_attrs:
-    setattr(PlaylistGenerator, 'min_'+attr,
-            FloatField(attr.capitalize(), default=0.0,
-                       widget=TextDisplayWidget()))
-    setattr(PlaylistGenerator, 'max_'+attr,
-            FloatField('Max '+attr.capitalize(), default=1.0,
-                       widget=TextDisplayWidget()))
+    setattr(PlaylistGenerator,
+            'min_'+attr['name'],
+            attr['field_type'](attr['name'].capitalize(),
+                               default=attr['min'],
+                               widget=TextDisplayWidget(),
+                               render_kw={
+                                   'default': attr['min'],
+                                   'step': attr['step'],
+                                   'field_type': str(attr['field_type'].__name__)}))
+    setattr(PlaylistGenerator,
+            'max_'+attr['name'],
+            attr['field_type']('Max '+attr['name'].capitalize(),
+                               default=attr['max'],
+                               widget=TextDisplayWidget(),
+                               render_kw={
+                                   'default': attr['max'],
+                                   'step': attr['step'],
+                                   'field_type': str(attr['field_type'].__name__)}))

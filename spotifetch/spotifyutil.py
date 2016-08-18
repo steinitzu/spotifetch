@@ -244,6 +244,8 @@ class PlaylistGenerator(object):
         seeds = self.get_seed_artists()
 
         log.info('Begin getting recommendations')
+        log.info('Playlist:"{}" tuneables:{}'.format(
+            playlist['uri'], self.tuneable))
 
         recs = self.get_recommendations(seeds)
 

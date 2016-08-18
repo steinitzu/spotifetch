@@ -57,8 +57,7 @@ def playlist_generator():
     form = forms.PlaylistGenerator(request.form)
 
     if request.method == 'POST':
-        log.info('Form was posted')
-        log.info(form.data)
+        log.info('Posted form fata: {}'.format(form.data))
         kw = {}
         kw['playlist_name'] = (
             form.playlist_name.data or 'Generated playlist')
@@ -88,13 +87,19 @@ def playlist_generator():
         for field in form.tuneable_fields:
             key = field.name
             value = field.data
-            if value < 0 or value > 1:
-                continue
-            # Ignore fields with 0 or 1 values since they make no difference
-            if key.startswith('min_') and value == 0:
-                continue
-            if key.startswith('max_') and value == 1.0:
-                continue
+            if key.startswith('min_'):
+                if value <= field.default:
+                    continue
+            elif key.startswith('max_'):
+                if value >= field.default:
+                    continue
+            # if value < 0 or value > 1:
+            #     continue
+            # # Ignore fields with 0 or 1 values since they make no difference
+            # if key.startswith('min_') and value == 0:
+            #     continue
+            # if key.startswith('max_') and value == 1.0:
+            #     continue
             kw['tuneable'][key] = value
         gen = spotifyutil.PlaylistGenerator(
             token['access_token'], **kw)

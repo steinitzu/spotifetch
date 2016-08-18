@@ -13,6 +13,9 @@
 {% block head %}
     {{super()}}
     <meta name="keywords" content="spotify, playlist, playlists, playlist generator, music" />
+    <meta name="description" content="Spotifetch playlist generator uses artists from your Spotify
+                                      music library along configurable acoustic attributes to generate
+                                      playlists tuned to your liking." />
 {% endblock %}
 
 
@@ -30,6 +33,7 @@
         <div class="footer text-center">
             <span>
                 Copyright © {{ utcnow().year }} Steinþór Pálsson
+                - <a href="https://github.com/steinitzu/spotifetch">Source code</a>
             </span>
             <br/>
             <span>

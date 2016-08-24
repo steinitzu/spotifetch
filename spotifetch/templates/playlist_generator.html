@@ -77,45 +77,71 @@
     {{ super() }}
     <script src="{{ url_for('static', filename='scripts/playlist_generator.js') }}"></script>
     <script>
-     var submit_form = function() {
-         form = document.getElementById('playlist_gen_form');
+     var enable_submit_button = function() {
+         submit_button = document.getElementById('submit-button');
+         submit_button.disabled = false;
+     };
+
+     var disable_submit_button = function() {
+         submit_button = document.getElementById('submit-button');
+         submit_button.disabled = true;
+     };
+
+     var set_alert = function(text_message, link_message, link_href, alert_class) {
          loading_alert = document.getElementById('loading-alert');
          loading_alert_text = document.getElementById('loading-alert-text');
          loading_alert_link = document.getElementById('loading-alert-link');
 
-         loading_alert_text.textContent = '';
-         loading_alert_link.textContent = '';
-         loading_alert_link.href = '';
+         loading_alert_text.textContent = text_message;
+         loading_alert_link.textContent = link_message;
+         loading_alert_link.href = link_href;
+         loading_alert.className = alert_class;
+     };
 
-         submit_button = document.getElementById('submit-button');
+     var interval_id;
+     var check_status = function(task_id) {
+         fetch('/task_status?task_id='+task_id).then(function(response){
+             response.json().then(function(result) {
+                 if (result.status === 'SUCCESS'){
+                     clearInterval(interval_id);
+                     window.scrollTo(0, 0);
+                     set_alert('Your playlist has been created. ',
+                               'Check it out here!',
+                               result.result,
+                               'alert alert-success');
+                     enable_submit_button();
+                     return;
+                 };
+                 setTimeout(function() { check_status(task_id); }, 5000);
+             });
+         })
+
+     };
+
+     var submit_form = function() {
+         form = document.getElementById('playlist_gen_form');
+         set_alert('', '', '', 'alert');
          fetch('/playlist_generator', {
              method: 'POST',
              body: new FormData(form),
              credentials: 'same-origin'
          }).then(function(response){
              window.scrollTo(0, 0);
-             submit_button.disabled = false;
              if (!response.ok) {
-                 loading_alert.className = 'alert alert-danger';
                  response.text().then(function(message) {
-                     loading_alert_text.textContent = message;
+                     set_alert(message, '', '', 'alert alert-danger');
                  });
                  return;
              };
-             loading_alert_text.textContent = 'Your playlist has been created!';
-             loading_alert.className = 'alert alert-success';
-             response.text().then(function(result) {
-                 console.log(result);
-                 loading_alert_link.textContent += ' View it here!';
-                 loading_alert_link.href = result;
-             });
+             disable_submit_button();
+             set_alert('Your playlist is being created!', '', '', 'alert alert-info');
 
+             response.json().then(function(result) {
+                 task_id = result['task_id'];
+                 interval_id = setTimeout(function() { check_status(task_id); }, 1000);
+             });
          });
 
-         window.scrollTo(0, 0);
-         submit_button.disabled = true;
-         loading_alert_text.textContent = 'Your playlist is currently being filled with juicy tracks!';
-         loading_alert.className = 'alert alert-info';
      }
     </script>
 

@@ -8,3 +8,5 @@ flask-bootstrap
 gevent
 wtforms
 flask_wtf
+sqlalchemy
+celery

@@ -8,6 +8,22 @@ def chunked(l, n):
         yield l[i:i+n]
 
 
+def iter_chunked(iterator, chunk_size):
+    """
+    Same as chunked, but also works on generators.
+    This exhausts the generator.
+    """
+    chunk = []
+    for item in iterator:
+        chunk.append(item)
+        if len(chunk) == chunk_size:
+            yield chunk
+            chunk = []
+    if chunk:
+        yield chunk
+
+
+
 def is_iterable(obj):
     """
     Check whether obj is iterable and NOT a string.

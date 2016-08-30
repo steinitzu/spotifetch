@@ -11,3 +11,4 @@ flask_wtf
 sqlalchemy
 celery
 mysqlclient
+isodate

@@ -1,9 +1,13 @@
+from __future__ import absolute_import
+
 import socket
 import sys
 import os
-from subprocess import call
 
 os.chdir(os.environ['SPOTIFETCH_MODULE_DIR'])
+sys.path.append(os.environ['SPOTIFETCH_MODULE_DIR'])
+
+from spotifetch import celery
 
 lock_socket = None
 
@@ -24,4 +28,4 @@ def is_lock_free():
 if not is_lock_free():
     sys.exit()
 
-call(['celery', '-A', 'spotifetch.celery', 'worker'])
+celery.worker_main(['worker'])

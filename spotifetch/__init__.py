@@ -1,7 +1,6 @@
-__version__ = 0.1
-
 import logging
-from logging.handlers import RotatingFileHandler
+import sys
+from logging import StreamHandler
 import os
 from datetime import datetime
 import time
@@ -10,14 +9,17 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from celery import Celery
 
+__version__ = 0.1
+
+
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
-app.config.from_envvar('HOWHEAVY_CONFIG_PATH')
 
 
 def make_celery(app):
     celery = Celery(__name__,
-                    broker=app.config['CELERY_BROKER_URL'])
+                    broker=app.config['CELERY_BROKER_URL'],
+                    backend=app.config['CELERY_RESULT_BACKEND'])
     celery.conf.update(app.config)
     TaskBase = celery.Task
     class ContextTask(TaskBase):
@@ -39,9 +41,10 @@ def sleepy_test(a, b):
     return a + b
 
 
-handler = RotatingFileHandler(
-    os.path.join(app.config['LOG_DIRECTORY'], '{}.log'.format(__name__)),
-    maxBytes=100000, backupCount=10)
+# handler = RotatingFileHandler(
+#     os.path.join(app.config['LOG_DIRECTORY'], '{}.log'.format(__name__)),
+#     maxBytes=100000, backupCount=10)
+handler = StreamHandler(stream=sys.stdout)
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter(
     '%(asctime)s:%(msecs)d-%(levelname)s-%(module)s:%(lineno)d:%(message)s')
@@ -56,7 +59,6 @@ bootstrap = Bootstrap(app)
 @app.context_processor
 def inject_variables():
     return dict(utcnow=datetime.utcnow)
-
 
 
 from . import views

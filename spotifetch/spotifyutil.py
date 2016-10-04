@@ -10,16 +10,16 @@ import spotipy.util
 import isodate
 
 from . import app, log
-from .util import dict_get_nested, shrink_nested_list, chunked
+from .util import dict_get_nested, shrink_nested_list
 from .util import iter_chunked
 
 TRACK_LIMIT = 10000
 
 
 def get_spotify_oauth():
-    client_id = os.getenv('SPOTIPY_CLIENT_ID')
-    client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
-    redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+    client_id = app.config['SPOTIFY_CLIENT_ID']
+    client_secret = app.config['SPOTIFY_CLIENT_SECRET']
+    redirect_uri = app.config['SPOTIFY_REDIRECT_URI']
     log.info(app.config['SPOTIFY_AUTHORIZATION_SCOPE'])
     auth = ExtendedOAuth(
         client_id, client_secret, redirect_uri,
